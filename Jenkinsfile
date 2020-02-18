@@ -3,9 +3,9 @@ pipeline {
      stages {
          stage ('image build') {
             steps {
-              script {
-                sh "docker build -t tweet ."
-              }
+            //   script {
+            sh "docker build -t tweet ."
+            //   }
                 }
             }
         stage ('image push') {
@@ -19,4 +19,3 @@ pipeline {
                 }
             }
         }
-    }
