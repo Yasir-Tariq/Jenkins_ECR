@@ -17,7 +17,7 @@ pipeline {
                     }
                 }
               }
-        }   
+        }
         stage ('ecs update'){
             steps {
                 script {
