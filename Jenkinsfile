@@ -16,11 +16,11 @@ pipeline {
         }
         stage ('ecs update'){
             steps {
-                ecr_image="020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-                task_definition= sh "aws ecs describe-task-definition --task-definition "${params.family}" --region "us-east-2""
-                new_task_definition=sh "echo $task_definition | jq --arg IMAGE "${ecr_image}" '.taskDefinition | .containerDefinitions[0].image = ${IMAGE} | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'"
-                new_task_info=sh "aws ecs register-task-definition --region "us-east-2" --cli-input-json "${new_task_definition}""
-                new_revision=sh "echo ${new_task_info} | jq '.taskDefinition.revision'"
+                def ecr_image="020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
+                def task_definition= sh "aws ecs describe-task-definition --task-definition "${params.family}" --region "us-east-2""
+                def new_task_definition=sh "echo ${task_definition} | jq --arg IMAGE "${ecr_image}" '.taskDefinition | .containerDefinitions[0].image = ${IMAGE} | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'"
+                def new_task_info=sh "aws ecs register-task-definition --region "us-east-2" --cli-input-json "${new_task_definition}""
+                def new_revision=sh "echo ${new_task_info} | jq '.taskDefinition.revision'"
                 sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${new_revision}"
             }
         }
