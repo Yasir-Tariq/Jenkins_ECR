@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     withAWS(region:'us-east-2') {
-                        sh "${env.c}"
+                        sh "echo ${env.c}"
                         // def ecr_image="020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"   
                         sh "${env.ecr_image}"
                         // def task_definition= sh "aws ecs describe-task-definition --task-definition "${params.family}" --region "us-east-2""
