@@ -27,7 +27,7 @@ pipeline {
         stage ('ecs update'){
             environment {
                ecr_image_initial = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:"
-               ecr_image
+               ecr_image = ""
            }
             steps {
                 script {
