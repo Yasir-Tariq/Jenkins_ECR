@@ -30,7 +30,7 @@ pipeline {
                task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'")
                new_task_definition = sh(script: "echo ${env.task_definition} | jq --arg new ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = $new | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")
                new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.new_task_definition}")
-               new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'")
+               new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'")  
            }
             steps {
                 script {
