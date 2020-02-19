@@ -26,19 +26,15 @@ pipeline {
         }
         stage ('ecs update'){
             environment {
-               a = "1"
-               b = "${env.a}"
-               c = "echo ${env.b}"
                ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-               task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'")
-               new_task_definition = sh(script: "echo ${env.task_definition} | jq --arg IMAGE ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")
-               new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.new_task_definition}")
-               new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'")
+               task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'", , returnStdout: true).trim()
+               new_task_definition = sh(script: "echo ${env.task_definition} | jq --arg IMAGE ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'", , returnStdout: true).trim()
+               new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.new_task_definition}", , returnStdout: true).trim()
+               new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'", , returnStdout: true).trim()
            }
             steps {
                 script {
                     withAWS(region:'us-east-2') {
-                        sh "echo ${env.c}"
                         // def ecr_image="020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"   
                         sh "${env.ecr_image}"
                         // def task_definition= sh "aws ecs describe-task-definition --task-definition "${params.family}" --region "us-east-2""
