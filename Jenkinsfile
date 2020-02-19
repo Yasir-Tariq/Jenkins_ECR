@@ -28,9 +28,10 @@ pipeline {
             environment {
                ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet"
                task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'", , returnStdout: true).trim()
-               new_task_definition = sh(script: "echo ${env.task_definition} | jq --arg IMAGE ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = ${IMAGE} | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'", , returnStdout: true).trim()
-               new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.new_task_definition}", , returnStdout: true).trim()
-               new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'", , returnStdout: true).trim()
+            //    new_task_definition = sh(script: "echo ${env.task_definition} | jq --arg IMAGE ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = ${IMAGE} | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'", , returnStdout: true).trim()
+               new_task_definition = sh(script: "echo ${env.task_definition}", , returnStdout: true).trim()
+            //    new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.new_task_definition}", , returnStdout: true).trim()
+            //    new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'", , returnStdout: true).trim()
            }
             steps {
                 script {
@@ -42,10 +43,10 @@ pipeline {
                         // def new_task_definition=sh "echo ${task_definition} | jq --arg IMAGE "${ecr_image}" '.taskDefinition | .containerDefinitions[0].image = ${IMAGE} | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'"
                         sh "${env.new_task_definition}"
                         // def new_task_info=sh "aws ecs register-task-definition --region 'us-east-2' --cli-input-json "${new_task_definition}""
-                        sh "${env.new_task_info}"
+                        // sh "${env.new_task_info}"
                         // def new_revision=sh "echo ${new_task_info} | jq '.taskDefinition.revision'"
-                        sh "${env.new_revision}"
-                        sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
+                        // sh "${env.new_revision}"
+                        // sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
                     }
                 }
                 
