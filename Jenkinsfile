@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     withAWS(region:'us-east-2') {
-                        new_task_info = sh "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.task_definition[0]}"
+                        new_task_info = sh "aws ecs register-task-definition --region 'us-east-2' --cli-input-json "${env.task_definition}""
                         // sh "echo '${task_definition}'"
 
                         // def ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
