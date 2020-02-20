@@ -24,7 +24,7 @@ pipeline {
         stage ('ecs update'){
             environment {
                 ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-                task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'")
+                task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'", returnStdout: true).trim()
                 new_task_definition = sh(script: "echo ${env.task_definition}")
                 // new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.new_task_definition}")
                 // new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'")
@@ -36,7 +36,7 @@ pipeline {
                         // def task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'")
                         // def new_task_definition = sh(script: "echo ${env.foo}")
 
-                        sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
+                        // sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
                     }
                 }
                 
