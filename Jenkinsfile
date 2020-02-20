@@ -4,19 +4,20 @@ pipeline {
         string(name: 'family', defaultValue: 'app-db-cfn', description: 'Task Family for ecs.')
         string(name: 'ecs_cluster', defaultValue: 'mycluster', description: 'Enter the cluster name')
         string(name: 'service_name', defaultValue: 'sample-service', description: 'Enter service.')
+        string(name: 'region', defaultValue: 'us-east-2', description: 'Enter service.')
            }
      stages {
         stage ('image push') {
             environment {
-               token = sh(script: "eval aws ecr get-login --no-include-email --region us-east-2 | sed 's|https://||'", , returnStdout: true).trim()
+               token = sh(script: "eval aws ecr get-login --no-include-email --region ${params.region} | sed 's|https://||'", , returnStdout: true).trim()
            }
             steps {
                 script {
-                    withAWS(region:'us-east-2') {
+                    withAWS(region:"${params.region}") {
                         sh "docker build -t tweet ."  
-                        sh "docker tag tweet:latest 020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
+                        sh "docker tag tweet:latest 020046395185.dkr.ecr.${params.region}.amazonaws.com/tweet:${GIT_COMMIT}"
                         sh "${env.token}"
-                        sh "docker push 020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
+                        sh "docker push 020046395185.dkr.ecr.${params.region}.amazonaws.com/tweet:${GIT_COMMIT}"
                     }   
                 }
               } 
@@ -26,19 +27,18 @@ pipeline {
                 fam = "${params.family}"
                 cluster = "${params.ecs_cluster}"
                 svc = "${params.service_name}"
+                rgn = "${params.region}"
             }
             steps {
-                // script {
-                withAWS(region:'us-east-2') {
-                    sh '''ECR_IMAGE="020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:\${GIT_COMMIT}"
-                        TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition \${fam} --region "us-east-2")
+                withAWS(region:"${env.rgn}") {
+                    sh '''ECR_IMAGE="020046395185.dkr.ecr.\${rgn}.amazonaws.com/tweet:\${GIT_COMMIT}"
+                        TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition \${fam} --region \${rgn})
                         NEW_TASK_DEFINTIION=$(echo \$TASK_DEFINITION | jq --arg IMAGE "\$ECR_IMAGE" \'.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)\')
-                        NEW_TASK_INFO=$(aws ecs register-task-definition --region "us-east-2" --cli-input-json "\$NEW_TASK_DEFINTIION")
+                        NEW_TASK_INFO=$(aws ecs register-task-definition --region \${rgn} --cli-input-json "\$NEW_TASK_DEFINTIION")
                         NEW_REVISION=$(echo \$NEW_TASK_INFO | jq \'.taskDefinition.revision\')
                         aws ecs update-service --cluster \${cluster} --service \${svc} --task-definition \${fam}:\${NEW_REVISION} 
                 '''
                 }
-                // }
                 
             }
         }
