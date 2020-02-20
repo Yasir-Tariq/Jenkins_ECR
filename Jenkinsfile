@@ -32,11 +32,6 @@ pipeline {
             steps {
                 script {
                     withAWS(region:'us-east-2') {
-                        // sh "${env.ecr_image}"
-                        // sh "${env.task_definition}"
-                        // sh "${env.new_task_definition}"
-                        // sh "${env.new_task_info}"
-                        // sh "${env.new_revision}"
                         sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
                     }
                 }
