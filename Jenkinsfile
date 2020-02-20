@@ -29,14 +29,14 @@ pipeline {
             //    new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.new_task_definition}")
             //    new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'")
            }
-            steps {
-                script {
-                    // withAWS(region:'us-east-2') {
-                    //     // sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
-                    // }
-                }
+            // steps {
+            //     script {
+            //         // withAWS(region:'us-east-2') {
+            //         //     // sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
+            //         // }
+            //     }
                 
-            }
+            // }
         }
 
     }
