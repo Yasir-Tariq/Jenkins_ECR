@@ -32,7 +32,7 @@ pipeline {
             steps {
                 script {
                     withAWS(region:'us-east-2') {
-                        sh "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg foo ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = $foo | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'"
+                        sh "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg image ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = $image | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'"
                         // sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
                     }
                 }
