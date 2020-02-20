@@ -6,58 +6,33 @@ pipeline {
         string(name: 'service_name', defaultValue: 'sample-service', description: 'Enter service.')
            }
      stages {
-        // stage ('image push') {
-        //     environment {
-        //        token = sh(script: "eval aws ecr get-login --no-include-email --region us-east-2 | sed 's|https://||'", , returnStdout: true).trim()
-        //    }
-        //     steps {
-        //         script {
-        //             withAWS(region:'us-east-2') {
-        //                 sh "docker build -t tweet ."  
-        //                 sh "docker tag tweet:latest 020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-        //                 sh "${env.token}"
-        //                 sh "docker push 020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-        //             }   
-        //         }
-        //       } 
-        // }
-        stage ('ecs update'){
+        stage ('image push') {
             environment {
-                sample = "123"
-                
-                // ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-                // task_definition = "${sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")}"
-                
-                // ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-                // task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")
-                // new_task_definition = sh(script: "echo ${env.task_definition} | jq --arg IMAGE ${env.ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")
-                // new_task_info = sh(script: "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.task_definition}")
-                // new_revision = sh(script: "echo ${env.new_task_info} | jq '.taskDefinition.revision'")
-           }  
+               token = sh(script: "eval aws ecr get-login --no-include-email --region us-east-2 | sed 's|https://||'", , returnStdout: true).trim()
+           }
             steps {
                 script {
                     withAWS(region:'us-east-2') {
-                        ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-                        // def task_definition = "${sh(script: "sample = \$(aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')")}"
-                        // sh "sample = \$(aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')"
-
-                        // new_task_info = sh "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.task_definition}"
-                        echo 'PAKISTAN'
-                        sh 'echo "THIS IS: $sample"'
-                        // sh "echo \${sample}"
-                        // sh """ sample1=\${sample}
-                        // echo \$sample1"""
-                        // sh "echo '${task_definition}'"
-                        // println("${task_definition}")
-
-                        // sh "echo '${task_definition}'"
-
-                        // def ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-                        // def task_definition = sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2'")
-                        // def new_task_definition = sh(script: "echo ${env.foo}")
-                        
-
-                        // sh "aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:${env.new_revision}"
+                        sh "docker build -t tweet ."  
+                        sh "docker tag tweet:latest 020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
+                        sh "${env.token}"
+                        sh "docker push 020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
+                    }   
+                }
+              } 
+        }
+        stage ('ecs update'){
+            steps {
+                script {
+                    withAWS(region:'us-east-2') {
+                        sh """
+                        ECR_IMAGE = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
+                        TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "${params.family}" --region "us-east-2")
+                        NEW_TASK_DEFINTIION=$(echo \$TASK_DEFINITION | jq --arg IMAGE "\$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')
+                        NEW_TASK_INFO=$(aws ecs register-task-definition --region "us-east-2" --cli-input-json "\$NEW_TASK_DEFINTIION")
+                        NEW_REVISION=$(echo \$NEW_TASK_INFO | jq '.taskDefinition.revision')
+                        aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:\${NEW_REVISION}
+                        """
                     }
                 }
                 
