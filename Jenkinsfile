@@ -41,7 +41,7 @@ pipeline {
                         // new_task_info = sh "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.task_definition}"
                         sh "echo 'PAKISTAN'"
                         // sh "echo '${task_definition}'"
-                        println("${env.task_definition}")
+                        println("${task_definition}")
 
                         // sh "echo '${task_definition}'"
 
