@@ -37,11 +37,13 @@ pipeline {
                 script {
                     withAWS(region:'us-east-2') {
                         ecr_image = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
-                        def task_definition = "${sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")}"
+                        // def task_definition = "${sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")}"
+                        sh "sample = aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'"
+
                         // new_task_info = sh "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.task_definition}"
                         sh "echo 'PAKISTAN'"
-                        sh """ sample=${task_definition}
-                        echo \$sample"""
+                        sh """ sample1=${sample}
+                        echo \$sample1"""
                         // sh "echo '${task_definition}'"
                         // println("${task_definition}")
 
