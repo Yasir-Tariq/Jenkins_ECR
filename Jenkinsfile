@@ -23,17 +23,17 @@ pipeline {
         }
         stage ('ecs update'){
             steps {
-                script {
-                    withAWS(region:'us-east-2') {
-                        sh """ECR_IMAGE = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:\${GIT_COMMIT}"
-                        TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "${params.family}" --region "us-east-2")
-                        NEW_TASK_DEFINTIION=$(echo \$TASK_DEFINITION | jq --arg IMAGE "\$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')
-                        NEW_TASK_INFO=$(aws ecs register-task-definition --region "us-east-2" --cli-input-json "\$NEW_TASK_DEFINTIION")
-                        NEW_REVISION=$(echo \$NEW_TASK_INFO | jq '.taskDefinition.revision')
-                        aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:\${NEW_REVISION}
-                        """
-                    }
+                // script {
+                withAWS(region:'us-east-2') {
+                    sh """ECR_IMAGE = "020046395185.dkr.ecr.us-east-2.amazonaws.com/tweet:${GIT_COMMIT}"
+                    TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "${params.family}" --region "us-east-2")
+                    NEW_TASK_DEFINTIION=$(echo \$TASK_DEFINITION | jq --arg IMAGE "\$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')
+                    NEW_TASK_INFO=$(aws ecs register-task-definition --region "us-east-2" --cli-input-json "\$NEW_TASK_DEFINTIION")
+                    NEW_REVISION=$(echo \$NEW_TASK_INFO | jq '.taskDefinition.revision')
+                    aws ecs update-service --cluster ${params.ecs_cluster} --service ${params.service_name} --task-definition ${params.family}:\${NEW_REVISION}
+                    """
                 }
+                // }
                 
             }
         }
