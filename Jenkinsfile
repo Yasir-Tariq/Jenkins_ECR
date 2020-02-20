@@ -40,7 +40,8 @@ pipeline {
                         def task_definition = "${sh(script: "aws ecs describe-task-definition --task-definition ${params.family} --region 'us-east-2' | jq --arg IMAGE ${ecr_image} '.taskDefinition | .containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'")}"
                         // new_task_info = sh "aws ecs register-task-definition --region 'us-east-2' --cli-input-json ${env.task_definition}"
                         sh "echo 'PAKISTAN'"
-                        sh "echo '${task_definition}'"
+                        // sh "echo '${task_definition}'"
+                        println("${env.task_definition}")
 
                         // sh "echo '${task_definition}'"
 
