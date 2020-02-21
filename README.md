@@ -43,7 +43,8 @@ with the latest Git commit hash value. There is a stage for this process. Next t
 for updating the AWS ECS resources. For this, we are using a bunch of shell commands and jq tool
 which will do the job for us using aws ecs-cli. Below is the scripting:
 
-sh '''ECR_IMAGE="020046395185.dkr.ecr.\${rgn}.amazonaws.com/tweet:\${GIT_COMMIT}"
+## Script
+    sh '''ECR_IMAGE="020046395185.dkr.ecr.\${rgn}.amazonaws.com/tweet:\${GIT_COMMIT}"
                         TASK_DEFINITION=$(aws ecs describe-task-definition \
                         --task-definition \${fam} --region \${rgn})\
                         NEW_TASK_DEFINTIION=$(echo \$TASK_DEFINITION | jq \
