@@ -22,9 +22,13 @@ Following plugin is used in this project:
 This repository consists of following files:
 
 1.Jenkinsfile: contains Jenkins Pipeline code.
+
 2.Dockerfile: contains a sample web application image.
+
 3.index.html: contains code for the application.
+
 4.linux.png: a sample picture to be attached to the web application.
+
 Please note that the ECS infrastructure ECR repository would be provisioned before hand.
 
 
